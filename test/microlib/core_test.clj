@@ -1,17 +1,33 @@
 (ns microlib.core-test
   (:require [clojure.test :refer [deftest is testing]]
             [microlib.core :as subject]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]
+            [clojure.java.io :as io]
+            [clojure.java.shell :refer [sh]]
             [schema.test]))
 
 (clojure.test/use-fixtures :once schema.test/validate-schemas)
 
-(defspec i-like-orange 100
-  (prop/for-all [n gen/int]
-                (is (= :orange (subject/favorite-color)))))
+(comment If I'm going to release something to the public
+         then I want to know it works for realz.
+         But as an MVP-test, where I am the test subject,
+         "How do I know it works? I ran it and it did what
+         I wanted" "is perfectly sufficient.")
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(def test-template "test-input/project-without-libbit")
+(def test-destination "test-results")
+(def test-libbit "test-input/pretend-libbit")
+
+;; assumption: directory & project name are the same for destination project
+
+(deftest one-hardcoded-test
+  (println "Where am I?" (.getAbsolutePath (clojure.java.io/file ".")))
+  (println (sh "pwd"))
+  (println (sh "ls" "."))
+  (sh "rm" "-r" test-destination)
+  (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict
+  (subject/-main "-l" test-libbit "-d" test-destination)
+  (let [code-file (io/file (str test-destination "/src/" test-destination "/pretend.clj"))
+        test-file (io/file (str test-destination "/test/" test-destination "/pretend_test.clj"))]
+    (is (.exists code-file)))
+  )
