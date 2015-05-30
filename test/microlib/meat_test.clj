@@ -1,7 +1,6 @@
-(ns microlib.core-test
+(ns microlib.meat-test
   (:require [clojure.test :refer [deftest is testing]]
-            [microlib.core :as subject]
-            [clojure.test.check.clojure-test :refer [defspec]]
+            [microlib.meat :as subject]
             [clojure.java.io :only [file] :refer [file]]
             [schema.test]))
 
@@ -15,12 +14,10 @@
 (deftest example-of-libbit-decisions
   (testing "Destination has one libbit already"
     (let [libbit-dir "/Users/fake/libbitname-dir"
-          pretend-libbit {:name "libbitname"
+          pretend-libbit {:name     "libbitname"
                           :location (file libbit-dir)
-                          :files ["src/destproj/libbit/some_other_libbit.clj"
-                                  "src/destproj/core.clj"
-                                  "target/some_stuff.txt"
-                                  "test/destproj/libbit/some_other_libbit_test.clj"]}
+                          :files    [{:location (file "src/libbitname.clj")
+                                      :contents (delay "(ns libbitname) \"blahblah\" ")}]}
           pretend-destination {:name "destproj"
                                :location (file "/Users/fake/destproj-dir")}
           result (subject/install-libbit pretend-libbit pretend-destination)]

@@ -1,5 +1,6 @@
 (ns microlib.core
   (:require [schema.core :as s]
+            [microlib.schemas :as t]
             [clojure.tools.cli :as cli]
             [clojure.java.io :as io]))
 
@@ -47,18 +48,3 @@
         dest-code-file (str dest-project-dir "/src/" dest-project-name "/" code-file-name)]
     (println "copying" code-file "to" dest-code-file)
     (io/copy code-file (io/file dest-code-file))))
-
-
-
-(s/defschema Libbit (s/named
-                      {:libbit-name s/Str                   ;; a valid Clojure namespace, not qualified just the stuff after the last dot, what's that called
-                       :code-file-location s/Str            ;; or maybe I should use a file
-                       :test-file-location s/Str            ;; or maybe I should use a file
-                       }
-                      "Libbit structure"))
-(s/defn libbitize :- Libbit [libbit-dir :- s/Str]
-  (let [libbit-dir (io/file libbit-dir)
-        _ (when (not (.isDirectory libbit-dir)) (throw (ex-info "Not a directory" {:location libbit-dir})))
-        ]))
-
-
