@@ -48,13 +48,18 @@
 
 (s/defn src-file-location [{:keys [libbit-name]}]
   (str/join "src" (as-clojure-file libbit-name)))
+
+(s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
+  (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
+
+(s/defn write-test-file [input]
+  {:error "Not implemented"})
+
+
 (s/defn find-file :- (s/maybe t/FileWithContents) [file-path fileses]
   (let [matches? (s/fn [fwc :- t/FileWithContents]
                    (= file-path (.getPath (:location fwc))))]
     (first (filter matches? fileses))))
-
-(s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
-  (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
 
 (defn as-clojure-file
   "Pretty sure I should be dash-to-underscoring"
