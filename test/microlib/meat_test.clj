@@ -20,8 +20,8 @@
                                           :destproj-location "/Users/fake/destproj-dir"
                                           :libbit-files [{:location (file "src/libbitname.clj")
                                                           :contents (delay "(ns libbitname) \"blahblah\" ")}]})]
-      (is (= [[:write {:to (file "/Users/fake/destproj-dir/src/destproj/libbit/libbitname.clj")
-                       :contents "(ns destproj.libbit.libbitname) \"blahblah\" "}]] result)))))
+      (is (= [{:write {:to       (file "/Users/fake/destproj-dir/src/destproj/libbit/libbitname.clj")
+                       :contents "(ns destproj.libbit.libbitname) \"blahblah\" "}}] result)))))
 
 ;; hmm. Gonna hafta provide a way to read the files
 ;; and it's not gonna be a copy, it's gonna be a write
