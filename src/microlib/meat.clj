@@ -16,8 +16,8 @@
                        populate-libbit-name
                        populate-destproj-name
                        )
-        instructions [(write-src-file full-input)
-                      (write-test-file full-input)]]
+        instructions (concat (write-src-file full-input)
+                             (write-test-file full-input))]
     instructions))
 
 ;; Default the name of the libbit and project
@@ -35,17 +35,17 @@
 
 ;;
 (declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file)
-(s/defn write-src-file :- t/Instruction [input]
+(s/defn write-src-file :- [t/Instruction] [input]
   (let [src-file (find-file (src-file-location input) (:libbit-location input) (:libbit-files input))
         rewrite-ns (change-ns-fn input)
         dest-file (dest-src-file input)]
     (cond
       (nil? src-file)
-      {:error (str "Libbit source file not found in " (src-file-location input))}
+      [{:error (str "Libbit source file not found in " (src-file-location input))}]
 
       :else
-      {:write {:to       dest-file
-               :contents (rewrite-ns (deref (:contents src-file)))}})))
+      [{:write {:to       dest-file
+                :contents (rewrite-ns (deref (:contents src-file)))}}])))
 
 (s/defn src-file-location [{:keys [libbit-name]}]
   (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
@@ -54,7 +54,7 @@
   (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
 
 (s/defn write-test-file [input]
-  {:noop "write-test-file is not implemented"})
+  [{:noop "write-test-file is not implemented"}])
 
 
 (s/defn find-file :- (s/maybe t/FileWithContents) [file-path relative-to fileses]
