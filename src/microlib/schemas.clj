@@ -16,3 +16,12 @@
 (s/defschema DestinationProject {:name     (s/maybe s/Str)  ;; Clojure ns?
                                  :location File
                                  :files    [File]})
+
+(s/defschema LibbitName (s/both s/Str (s/pred (partial not= "."))))
+(s/defschema ProjectName (s/both s/Str (s/pred (partial not= "."))))
+(s/def PathString (s/named s/Str "string containing a filesystem path"))
+
+;; act-in-filesystem
+(s/defschema WriteInstruction {:write {:to File :contents s/Str}})
+(s/defschema ErrorInstruction {:error s/Str})
+(s/defschema Instruction (s/either WriteInstruction ErrorInstruction))

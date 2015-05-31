@@ -2,7 +2,8 @@
   (:require [schema.core :as s]
             [microlib.schemas :as t]
             [clojure.tools.cli :as cli]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [microlib.meat :as meat]))
 
 
 (def cli-options [["-l" "--libbit LIBBIT" "Microlibrary location"
@@ -12,7 +13,7 @@
 
 (def ERROR 1)
 
-(declare copy-in-libbit-files)
+(declare perform)
 (defn -main [& args]
   (let [parsed (cli/parse-opts args cli-options)
         _ (println "options:" parsed)
@@ -25,27 +26,30 @@
           ERROR)
 
       (nil? libbit)
-      (do (println "Libbit is required")
+      (do (println "Libbit location is required")
           (println (:summary parsed))
           ERROR)
 
       (nil? destination)
-      (do (println "Destination project is required")
+      (do (println "Destination project location is required")
           (println (:summary parsed))
           ERROR)
 
       :else
       (do (println "I want to put libbit" libbit "into" destination)
-          (copy-in-libbit-files libbit destination))
+          (perform {:libbit-location libbit
+                                 :destproj-location destination}))
       )))
 
-(declare make-contents-available)
+(declare gather-data-from-filesystem)
 
-(s/defn copy-in-libbit-files [libbit-project-dir :- s/Str
-                              dest-project-dir :- s/Str]
-  (let [
-        libbit-files (make-contents-available (file-seq (io/file (libbit-project-dir))))
-        destproj-name (last (.split dest-project-dir))]))
+;; goal: start with options. Add minimum information.
+(s/defn perform [program-arguments :- {:libbit-location s/Str
+                                                    :destproj-location s/Str}]
+  (-> program-arguments
+      gather-data-from-filesystem
+      meat/install-libbit
+      act-on-filesystem))
 
 (s/defn make-contents-available :- [t/FileWithContents] [files :- [java.io.File]]
   (map files (fn [f] {:location f :contents (delay (slurp f))}))
