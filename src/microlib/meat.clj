@@ -6,30 +6,18 @@
 
 (declare populate-destproj-name populate-libbit-name write-src-file write-test-file)
 
-(s/defn install-libbit [input-data :- {:libbit-location t/PathString
-                                       :destproj-location t/PathString
-                                       :libbit-files [t/FileWithContents]
-                                       (s/optional-key :libbit-name) t/LibbitName}]
+(s/defn install-libbit [input-data :- {:libbit-location                t/PathString
+                                       :destproj-location              t/PathString
+                                       :libbit-files                   [t/FileWithContents]
+                                       (s/optional-key :libbit-name)   t/LibbitName
+                                       (s/optional-key :destproj-name) t/ProjectName}]
   (let [full-input (-> input-data
                        populate-libbit-name
                        populate-destproj-name
                        )
         instructions [(write-src-file full-input)
                       (write-test-file full-input)]]
-    instructions)
-  (let instr)
-  (let [libbit-name (default-to-dirname libbit)
-        destproj-name (default-to-dirname destproj)
-        libbit-src (find-file (str "src/" libbit-name ".clj") (:files libbit))
-
-        src-file-contents (let [old-libbit-ns libbit-name
-                                new-ns (str/join "." [destproj-name "libbit" libbit-name])]
-                            (change-ns
-                                    old-libbit-ns
-                                    new-ns
-                                    (deref (:contents libbit-src))))]
-    [[:write {:to       (file (:location destproj) "src" destproj-name "libbit" (str libbit-name ".clj"))
-              :contents src-file-contents}]]))
+    instructions))
 
 ;; Default the name of the libbit and project
 ;; to the name of the directory it's located in
@@ -45,31 +33,36 @@
   (last (.split loc java.io.File/separator)))
 
 ;;
-(declare add-instruction find-src-file rewrite-ns change-ns-fn)
-(s/defn write-src-file [input]
-  (let [src-file (find-src-file input)
-        rewrite-ns (change-ns-fn input)]
-    (add-instruction input {:write {:to (:location src-file)
-                                    :contents (rewrite-ns (:contents src-file))}})))
+(declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file)
+(s/defn write-src-file :- t/Instruction [input]
+  (let [src-file (find-file (src-file-location input) (:libbit-files input))
+        rewrite-ns (change-ns-fn input)
+        dest-file (dest-src-file input)]
+    (cond
+      (nil? src-file)
+      {:error (str "Libbit source file not found in " (src-file-location input))}
 
-(s/defn find-src-file :- t/FileWithContents [{:keys [libbit-files libbit-name]}]
-  (let [src-file-path ]))
+      :else
+      {:write {:to       dest-file
+               :contents (rewrite-ns (deref (:contents src-file)))}})))
 
-(s/defn add-instruction [{existing-instrs :instructions, :as input}
-                       new-instruction :- t/Instruction]
-  (let [existing (or existing-instrs [])
-        (assoc input :instructions (conj existing-instrs new-instruction))]))
-
-(defn change-ns [old-ns new-ns contents-of-clj]
-  (.replaceFirst contents-of-clj (str "\\(ns " old-ns) (str "(ns " new-ns)))
-
-(s/defn find-file :- t/FileWithContents [name :- s/Str
-                                         fileses :- [t/FileWithContents]]
+(s/defn src-file-location [{:keys [libbit-name]}]
+  (str/join "src" (as-clojure-file libbit-name)))
+(s/defn find-file :- (s/maybe t/FileWithContents) [file-path fileses]
   (let [matches? (s/fn [fwc :- t/FileWithContents]
-                   (= name (.getPath (:location fwc))))]
+                   (= file-path (.getPath (:location fwc))))]
     (first (filter matches? fileses))))
 
-(s/defn default-to-dirname :- s/Str [info :- {(s/optional-key :name) s/Str
-                                           :location java.io.File
-                                              s/Any s/Any}]
-  (or (:name info) (last (.split (.getAbsolutePath (:location info)) "/"))))
+(s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
+  (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
+
+(defn as-clojure-file
+  "Pretty sure I should be dash-to-underscoring"
+  [name]
+  (str name ".clj"))
+
+(s/defn change-ns-fn :- (s/=> s/Str s/Str) [{:keys [libbit-name destproj-name]}]
+  (let
+    [change-ns (s/fn [old-ns new-ns contents-of-clj]
+                 (.replaceFirst contents-of-clj (str "\\(ns " old-ns) (str "(ns " new-ns)))]
+    (partial change-ns libbit-name (str/join "." [destproj-name "libbit" libbit-name]))))

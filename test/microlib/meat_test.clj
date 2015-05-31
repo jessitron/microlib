@@ -14,13 +14,12 @@
 (deftest example-of-libbit-decisions
   (testing "Destination has one libbit already"
     (let [libbit-dir "/Users/fake/libbitname-dir"
-          pretend-libbit {:name     "libbitname"
-                          :location (file libbit-dir)
-                          :files    [{:location (file "src/libbitname.clj")
-                                      :contents (delay "(ns libbitname) \"blahblah\" ")}]}
-          pretend-destination {:name "destproj"
-                               :location (file "/Users/fake/destproj-dir")}
-          result (subject/install-libbit pretend-libbit pretend-destination)]
+          result (subject/install-libbit {:libbit-name "libbitname"
+                                          :destproj-name "destproj"
+                                          :libbit-location libbit-dir
+                                          :destproj-location "/Users/fake/destproj-dir"
+                                          :libbit-files [{:location (file "src/libbitname.clj")
+                                                          :contents (delay "(ns libbitname) \"blahblah\" ")}]})]
       (is (= [[:write {:to (file "/Users/fake/destproj-dir/src/destproj/libbit/libbitname.clj")
                        :contents "(ns destproj.libbit.libbitname) \"blahblah\" "}]] result)))))
 
