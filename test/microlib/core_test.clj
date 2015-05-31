@@ -15,6 +15,7 @@
          I wanted" "is perfectly sufficient.")
 
 (def test-template "test-input/project-without-libbit")
+(def test-libbit-name "pretend")                            ;; matches the .clj file in the pretend libbit
 (def test-destination "test-results")
 (def test-libbit "test-input/pretend-libbit")
 
@@ -26,7 +27,7 @@
   (println (sh "ls" "."))
   (sh "rm" "-r" test-destination)
   (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict
-  (subject/-main "-l" test-libbit "-d" test-destination)
+  (subject/-main "-l" test-libbit "-d" test-destination "-n" test-libbit-name)
   (let [code-file (io/file (str test-destination "/src/" test-destination "/pretend.clj"))
         test-file (io/file (str test-destination "/test/" test-destination "/pretend_test.clj"))]
     (is (.exists code-file))

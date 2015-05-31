@@ -7,10 +7,10 @@
 (declare populate-destproj-name populate-libbit-name write-src-file write-test-file)
 
 (s/defn ^:always-validate install-libbit [input-data :- {:libbit-location                t/PathString
-                                       :destproj-location              t/PathString
-                                       :libbit-files                   [t/FileWithContents]
-                                       (s/optional-key :libbit-name)   t/LibbitName
-                                       (s/optional-key :destproj-name) t/ProjectName}]
+                                                         :destproj-location              t/PathString
+                                                         :libbit-files                   [t/FileWithContents]
+                                                         (s/optional-key :libbit-name)   (s/maybe t/LibbitName)
+                                                         (s/optional-key :destproj-name) t/ProjectName}]
   (let [full-input (-> input-data
                        populate-libbit-name
                        populate-destproj-name

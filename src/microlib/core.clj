@@ -10,7 +10,8 @@
 (def cli-options [["-l" "--libbit LIBBIT" "Microlibrary location"
                    :validate [#(.exists (io/file %)) "not found"]]
                   ["-d" "--destination YOUR-PROJECT" "Project that needs the libbit"
-                   :validate [#(.exists (io/file %)) "not found"]]])
+                   :validate [#(.exists (io/file %)) "not found"]]
+                  ["-n" "--libbit-name LIBBITNAME" "Microlibrary name"]])
 
 (def ERROR 1)
 
@@ -19,6 +20,7 @@
   (let [parsed (cli/parse-opts args cli-options)
         _ (println "options:" parsed)
         libbit (get-in parsed [:options :libbit])
+        libbit-name (get-in parsed [:options :libbit-name])
         destination (get-in parsed [:options :destination])]
     (cond
       (:errors parsed)
@@ -39,14 +41,16 @@
       :else
       (do (println "I want to put libbit" libbit "into" destination)
           (perform {:libbit-location libbit
-                                 :destproj-location destination}))
+                    :destproj-location destination
+                    :libbit-name libbit-name}))
       )))
 
 (declare gather-data-from-filesystem)
 
 ;; goal: start with options. Add minimum information.
-(s/defn perform [program-arguments :- {:libbit-location s/Str
-                                                    :destproj-location s/Str}]
+(s/defn perform [program-arguments :- {:libbit-location   s/Str
+                                       :destproj-location s/Str
+                                       :libbit-name       (s/maybe s/Str)}]
   (-> program-arguments
       gather-data-from-filesystem
       meat/install-libbit
