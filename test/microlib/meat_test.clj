@@ -14,14 +14,14 @@
 (deftest example-of-libbit-decisions
   (testing "Destination has one libbit already"
     (let [libbit-dir "/Users/fake/libbitname-dir"
-          result (subject/install-libbit {:libbit-name "libbitname"
+          result (subject/install-libbit {:libbit-name "libbit-name"
                                           :destproj-name "destproj"
                                           :libbit-location libbit-dir
                                           :destproj-location "/Users/fake/destproj-dir"
-                                          :libbit-files [{:location (file "src/libbitname.clj")
-                                                          :contents (delay "(ns libbitname) \"blahblah\" ")}]})]
-      (is (= [{:write {:to       (file "/Users/fake/destproj-dir/src/destproj/libbit/libbitname.clj")
-                       :contents "(ns destproj.libbit.libbitname) \"blahblah\" "}}] result)))))
+                                          :libbit-files [{:location (file "src/libbit_name.clj")
+                                                          :contents (delay "(ns libbit-name) \"blahblah\" ")}]})]
+      (is (= [{:write {:to       (file "/Users/fake/destproj-dir/src/destproj/libbit/libbit_name.clj")
+                       :contents "(ns destproj.libbit.libbit-name) \"blahblah\" "}}] result)))))
 
 ;; hmm. Gonna hafta provide a way to read the files
 ;; and it's not gonna be a copy, it's gonna be a write
