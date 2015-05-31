@@ -6,7 +6,7 @@
 
 (declare populate-destproj-name populate-libbit-name write-src-file write-test-file)
 
-(s/defn install-libbit [input-data :- {:libbit-location                t/PathString
+(s/defn ^:always-validate install-libbit [input-data :- {:libbit-location                t/PathString
                                        :destproj-location              t/PathString
                                        :libbit-files                   [t/FileWithContents]
                                        (s/optional-key :libbit-name)   t/LibbitName

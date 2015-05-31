@@ -3,7 +3,8 @@
             [microlib.schemas :as t]
             [clojure.tools.cli :as cli]
             [clojure.java.io :as io]
-            [microlib.meat :as meat]))
+            [microlib.meat :as meat]
+            [microlib.act :refer [act-on-filesystem]]))
 
 
 (def cli-options [["-l" "--libbit LIBBIT" "Microlibrary location"
