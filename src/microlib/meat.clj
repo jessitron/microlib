@@ -35,7 +35,7 @@
 ;;
 (declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file)
 (s/defn write-src-file :- t/Instruction [input]
-  (let [src-file (find-file (src-file-location input) (:libbit-files input))
+  (let [src-file (find-file (src-file-location input) (:libbit-location input) (:libbit-files input))
         rewrite-ns (change-ns-fn input)
         dest-file (dest-src-file input)]
     (cond
@@ -56,9 +56,14 @@
   {:error "Not implemented"})
 
 
-(s/defn find-file :- (s/maybe t/FileWithContents) [file-path fileses]
-  (let [matches? (s/fn [fwc :- t/FileWithContents]
-                   (= file-path (.getPath (:location fwc))))]
+(s/defn find-file :- (s/maybe t/FileWithContents) [file-path relative-to fileses]
+  (let [relative-uri (.toURI (file relative-to))
+        matches? (s/fn [fwc :- t/FileWithContents]
+                   (let [relative-path (.toString (.relativize
+                                                    relative-uri
+                                                    (.toURI (:location fwc))))]
+                     (println "comparing" file-path "to" relative-path)
+                     (= file-path relative-path)))]
     (first (filter matches? fileses))))
 
 (defn as-clojure-file
