@@ -64,7 +64,7 @@
 (defn as-clojure-file
   "Pretty sure I should be dash-to-underscoring"
   [name]
-  (str name ".clj"))
+  (str (.replace name "-" "_") ".clj"))
 
 (s/defn change-ns-fn :- (s/=> s/Str s/Str) [{:keys [libbit-name destproj-name]}]
   (let
