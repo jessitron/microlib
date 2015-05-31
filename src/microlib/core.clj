@@ -53,5 +53,8 @@
       act-on-filesystem))
 
 (s/defn make-contents-available :- [t/FileWithContents] [files :- [java.io.File]]
-  (map files (fn [f] {:location f :contents (delay (slurp f))}))
+  (map (fn [f] {:location f :contents (delay (slurp f))}) files)
   )
+
+(s/defn gather-data-from-filesystem [{:keys [libbit-location] :as input}]
+  (assoc input :libbit-files (make-contents-available (file-seq (io/file libbit-location)))))
