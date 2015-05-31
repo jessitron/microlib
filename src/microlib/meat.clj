@@ -47,7 +47,7 @@
                :contents (rewrite-ns (deref (:contents src-file)))}})))
 
 (s/defn src-file-location [{:keys [libbit-name]}]
-  (str/join java.io.File/separator ["src" (as-clojure-file libbit-name)]))
+  (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
 
 (s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
   (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
