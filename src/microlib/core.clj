@@ -60,5 +60,7 @@
   (map (fn [f] {:location f :contents (delay (slurp f))}) files)
   )
 
-(s/defn gather-data-from-filesystem [{:keys [libbit-location] :as input}]
-  (assoc input :libbit-files (make-contents-available (file-seq (io/file libbit-location)))))
+(s/defn gather-data-from-filesystem [{:keys [libbit-location destproj-location] :as input}]
+  (-> input
+      (assoc :libbit-files (make-contents-available (file-seq (io/file libbit-location))))
+      (assoc :destproj-file-seq (file-seq (io/file destproj-location)))))
