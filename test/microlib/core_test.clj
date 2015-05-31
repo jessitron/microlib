@@ -28,8 +28,8 @@
   (sh "rm" "-r" test-destination)
   (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict. Shell does.
   (subject/-main "-l" test-libbit "-d" test-destination "-n" test-libbit-name)
-  (let [code-file (io/file (str test-destination "/src/" test-destination "/pretend.clj"))
-        test-file (io/file (str test-destination "/test/" test-destination "/pretend_test.clj"))]
+  (let [code-file (io/file (str test-destination "/src/" test-destination "/libbit/pretend.clj"))
+        test-file (io/file (str test-destination "/test/" test-destination "/libbit/pretend_test.clj"))]
     (is (.exists code-file))
-    #_(is (.startsWith (slurp code-file) (str "(ns " test-destination ".pretend"))))
+    (is (.startsWith (slurp code-file) (str "(ns " test-destination ".libbit.pretend"))))
   )

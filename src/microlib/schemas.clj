@@ -23,6 +23,7 @@
 
 ;; act-in-filesystem
 (s/defschema WriteInstruction {:write {:to File :contents s/Str}})
+(s/defschema MkdirInstruction {:mkdir {:for File}})
 (s/defschema ErrorInstruction {:error s/Str})
 (s/defschema NoOp {:noop s/Any})
-(s/defschema Instruction (s/either WriteInstruction ErrorInstruction NoOp))
+(s/defschema Instruction (s/named (s/either WriteInstruction MkdirInstruction ErrorInstruction NoOp) "Instruction"))

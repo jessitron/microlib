@@ -1,8 +1,9 @@
 (ns microlib.act
   (:require [schema.core :as s]
-            [microlib.schemas :as t]))
+            [microlib.schemas :as t]
+            [clojure.java.io :as io]))
 
-(declare perform-write)
+(declare perform-write perform-mkdir)
 
 (defn matches? [schema thing]
   (nil? (s/check schema thing)))
@@ -20,6 +21,9 @@
               t/WriteInstruction
               (perform-write one-instruction)
 
+              t/MkdirInstruction
+              (perform-mkdir one-instruction)
+
               t/NoOp
               nil))))))
 
@@ -27,4 +31,8 @@
 (s/defn ^:always-validate perform-write [instr :- t/WriteInstruction]
   (let [{destination :to, contents :contents} (:write instr)]
     (spit destination contents)))
+
+(s/defn ^:always-validate perform-mkdir [instr :- t/MkdirInstruction]
+  (let [{file-that-needs-a-home :for} (:mkdir instr)]
+    (io/make-parents file-that-needs-a-home)))
 

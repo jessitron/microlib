@@ -35,7 +35,7 @@
     (last (.split full-path java.io.File/separator))))
 
 ;;
-(declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file)
+(declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file mkdir-to)
 (s/defn write-src-file :- [t/Instruction] [input]
   (let [src-file (find-file (src-file-location input) (:libbit-location input) (:libbit-files input))
         rewrite-ns (change-ns-fn input)
@@ -45,8 +45,9 @@
       [{:error (str "Libbit source file not found in " (src-file-location input))}]
 
       :else
-      [{:write {:to       dest-file
-                :contents (rewrite-ns (deref (:contents src-file)))}}])))
+      (concat (mkdir-to dest-file (:destproj-file-seq input))
+              [{:write {:to       dest-file
+                        :contents (rewrite-ns (deref (:contents src-file)))}}]))))
 
 (s/defn src-file-location [{:keys [libbit-name]}]
   (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
@@ -67,6 +68,18 @@
                      (println "comparing" file-path "to" relative-path)
                      (= file-path relative-path)))]
     (first (filter matches? fileses))))
+
+(s/defn mkdir-to :- [t/Instruction]
+  "This only creates one directory right now!! Could be recursive."
+  [file-we-want-to-create existing-files-surrounding-it]
+  (let [directory-we-want (.toURI (.getParentFile (.getCanonicalFile file-we-want-to-create)))
+        existing-paths (map #(.toURI %) existing-files-surrounding-it)
+        matches (filter (partial = directory-we-want) existing-paths)]
+    (cond
+      (seq matches)
+      []
+      :else
+      [{:mkdir {:for (file file-we-want-to-create)}}])))
 
 (defn as-clojure-file
   "Pretty sure I should be dash-to-underscoring"

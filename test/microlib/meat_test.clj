@@ -36,9 +36,9 @@
                                                               (file "Users/fake/destproj-dir/src/destproj/")]
                                           :libbit-files      [{:location (file "/Users/fake/libbitname-dir/src/libbit/libbit_name.clj")
                                                                :contents (delay "(ns libbit-name) \"blahblah\" ")}]})]
-      (is (= {:mkdir {:at (file "/Users/fake/destproj-dir/src/destproj/libbit/")}}
+      (is (= {:mkdir {:for (file "/Users/fake/destproj-dir/src/destproj/libbit/libbit_name.clj")}}
              (first result)))
-      #_(is (= {:write {:to       (file "/Users/fake/destproj-dir/src/destproj/libbit/libbit_name.clj")
+      (is (= {:write {:to       (file "/Users/fake/destproj-dir/src/destproj/libbit/libbit_name.clj")
                       :contents "(ns destproj.libbit.libbit-name) \"blahblah\" "}}
              (second result))))))
 
