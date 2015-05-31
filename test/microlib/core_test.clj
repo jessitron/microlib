@@ -23,9 +23,6 @@
 ;; assumption: directory & project name are the same for destination project
 
 (deftest one-hardcoded-test
-  (println "Where am I?" (.getAbsolutePath (clojure.java.io/file ".")))
-  (println (sh "pwd"))
-  (println (sh "ls" "."))
   (sh "rm" "-r" test-destination)
   (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict. Shell does.
   (subject/-main "-l" test-libbit "-d" test-destination "-n" test-libbit-name "-p" test-destination-name)
