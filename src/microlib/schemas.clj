@@ -24,4 +24,5 @@
 ;; act-in-filesystem
 (s/defschema WriteInstruction {:write {:to File :contents s/Str}})
 (s/defschema ErrorInstruction {:error s/Str})
-(s/defschema Instruction (s/either WriteInstruction ErrorInstruction))
+(s/defschema NoOp {:noop s/Any})
+(s/defschema Instruction (s/either WriteInstruction ErrorInstruction NoOp))

@@ -53,7 +53,7 @@
   (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
 
 (s/defn write-test-file [input]
-  {:error "Not implemented"})
+  {:noop "write-test-file is not implemented"})
 
 
 (s/defn find-file :- (s/maybe t/FileWithContents) [file-path relative-to fileses]
