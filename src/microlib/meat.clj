@@ -35,19 +35,28 @@
     (last (.split full-path java.io.File/separator))))
 
 ;;
-(declare as-clojure-file snakecase find-file src-file-location rewrite-ns change-ns-fn dest-src-file mkdir-to)
+(declare as-clojure-file snakecase find-file src-file-location change-ns dest-src-file mkdir-to)
+
+(s/defn old-ns [{:keys [libbit-name]}]
+  (str "libbit." libbit-name))
+
+(s/defn new-ns [{:keys [libbit-name destproj-name]}]
+  (str/join "." [destproj-name "libbit" libbit-name]))
+
 (s/defn write-src-file :- [t/Instruction] [input]
   (let [src-file (find-file (src-file-location input) (:libbit-location input) (:libbit-files input))
-        rewrite-ns (change-ns-fn input)
         dest-file (dest-src-file input)]
     (cond
       (nil? src-file)
       [{:error (str "Libbit source file not found in " (src-file-location input))}]
 
+      (not (.contains (deref (:contents src-file)) (old-ns input)))
+      [{:error (str "expected ns " (old-ns input) " not detected in " (:location src-file))}]
+
       :else
       (concat (mkdir-to dest-file (:destproj-file-seq input))
               [{:write {:to       dest-file
-                        :contents (rewrite-ns (deref (:contents src-file)))}}]))))
+                        :contents (change-ns (old-ns input) (new-ns input) (deref (:contents src-file)))}}]))))
 
 (s/defn src-file-location [{:keys [libbit-name]}]
   (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
@@ -70,7 +79,8 @@
     (first (filter matches? fileses))))
 
 (s/defn mkdir-to :- [t/Instruction]
-  "This only creates one directory right now!! Could be recursive."
+  "Issue a mkdir instruction only if the directory does not exist.
+   It would totally be easier to always do this. It's idempotent, after all."
   [file-we-want-to-create existing-files-surrounding-it]
   (let [directory-we-want (.toURI (.getParentFile (.getCanonicalFile file-we-want-to-create)))
         existing-paths (map #(.toURI %) existing-files-surrounding-it)
@@ -89,8 +99,5 @@
   [name]
   (str (snakecase name) ".clj"))
 
-(s/defn change-ns-fn :- (s/=> s/Str s/Str) [{:keys [libbit-name destproj-name]}]
-  (let
-    [change-ns (s/fn [old-ns new-ns contents-of-clj]
-                 (.replaceFirst contents-of-clj (str "\\(ns " old-ns) (str "(ns " new-ns)))]
-    (partial change-ns libbit-name (str/join "." [destproj-name "libbit" libbit-name]))))
+(s/defn change-ns [old-ns new-ns contents-of-clj]
+                 (.replaceFirst contents-of-clj (str "\\(ns " old-ns) (str "(ns " new-ns)))
