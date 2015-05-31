@@ -2,30 +2,33 @@
   (:require [clojure.test :refer [deftest is testing]]
             [microlib.core :as subject]
             [clojure.test.check.clojure-test :refer [defspec]]
-            [clojure.java.io :only [file] :refer [file]]
+            [clojure.java.io :as io]
+            [clojure.java.shell :refer [sh]]
             [schema.test]))
 
 (clojure.test/use-fixtures :once schema.test/validate-schemas)
 
-;; new purpose: isolate side effects and see how this makes testing easier
-;; parsing the projects to get at their names would be hard. So let's supply
-;; it as an argument. I can type for now.
+(comment If I'm going to release something to the public
+         then I want to know it works for realz.
+         But as an MVP-test, where I am the test subject,
+         "How do I know it works? I ran it and it did what
+         I wanted" "is perfectly sufficient.")
 
+(def test-template "test-input/project-without-libbit")
+(def test-destination "test-results")
+(def test-libbit "test-input/pretend-libbit")
 
-(deftest example-of-libbit-decisions
-  (testing "Destination has one libbit already"
-    (let [libbit-dir "/Users/fake/libbitname-dir"
-          pretend-libbit {:name "libbitname"
-                          :location (file libbit-dir)
-                          :files ["src/destproj/libbit/some_other_libbit.clj"
-                                  "src/destproj/core.clj"
-                                  "target/some_stuff.txt"
-                                  "test/destproj/libbit/some_other_libbit_test.clj"]}
-          pretend-destination {:name "destproj"
-                               :location (file "/Users/fake/destproj-dir")}
-          result (subject/install-libbit pretend-libbit pretend-destination)]
-      (is (= [[:write {:to (file "/Users/fake/destproj-dir/src/destproj/libbit/libbitname.clj")
-                       :contents "(ns destproj.libbit.libbitname) \"blahblah\" "}]] result)))))
+;; assumption: directory & project name are the same for destination project
 
-;; hmm. Gonna hafta provide a way to read the files
-;; and it's not gonna be a copy, it's gonna be a write
+(deftest one-hardcoded-test
+  (println "Where am I?" (.getAbsolutePath (clojure.java.io/file ".")))
+  (println (sh "pwd"))
+  (println (sh "ls" "."))
+  (sh "rm" "-r" test-destination)
+  (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict
+  (subject/-main "-l" test-libbit "-d" test-destination)
+  (let [code-file (io/file (str test-destination "/src/" test-destination "/pretend.clj"))
+        test-file (io/file (str test-destination "/test/" test-destination "/pretend_test.clj"))]
+    (is (.exists code-file))
+    #_(is (.startsWith (slurp code-file) (str "(ns " test-destination ".pretend"))))
+  )
