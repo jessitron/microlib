@@ -9,10 +9,10 @@
 
 (s/defschema FileWithContents {:location File :contents (delayed s/Str)} )
 
-(s/defschema Libbit {:name     s/Str                            ;; a Clojure ns?
+(s/defschema Libbit {:name     (s/maybe s/Str)              ;; a Clojure ns?
                      :location File
                      :files    [FileWithContents]})
 
-(s/defschema DestinationProject {:name s/Str                ;; Clojure ns?
+(s/defschema DestinationProject {:name     (s/maybe s/Str)  ;; Clojure ns?
                                  :location File
-                                 :files [File]})
+                                 :files    [File]})

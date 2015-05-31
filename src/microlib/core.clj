@@ -39,12 +39,14 @@
           (copy-in-libbit-files libbit destination))
       )))
 
+(declare make-contents-available)
+
 (s/defn copy-in-libbit-files [libbit-project-dir :- s/Str
                               dest-project-dir :- s/Str]
-  (let [code-dir (str libbit-project-dir "/src/libbit")            ;; assumption, Linuxy?
-        code-file (second (file-seq (io/file code-dir)))     ;; assumptions: exists, is a dir, contains 1 file
-        dest-project-name (last (.split dest-project-dir "/")) ;; assumptions: linux, same project name, not "."
-        code-file-name (.getName code-file)
-        dest-code-file (str dest-project-dir "/src/" dest-project-name "/" code-file-name)]
-    (println "copying" code-file "to" dest-code-file)
-    (io/copy code-file (io/file dest-code-file))))
+  (let [
+        libbit-files (make-contents-available (file-seq (io/file (libbit-project-dir))))
+        destproj-name (last (.split dest-project-dir))]))
+
+(s/defn make-contents-available :- [t/FileWithContents] [files :- [java.io.File]]
+  (map files (fn [f] {:location f :contents (delay (slurp f))}))
+  )

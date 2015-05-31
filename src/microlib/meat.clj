@@ -4,19 +4,21 @@
             [clojure.java.io :only [file] :refer [file]]
             [clojure.string :as str]))
 
-(declare change-ns find-file)
+(declare change-ns find-file default-to-dirname)
 
 (s/defn install-libbit [libbit :- t/Libbit
                         destproj]
-  (let [libbit-src (find-file (str "src/" (:name libbit) ".clj") (:files libbit))
+  (let [libbit-name (default-to-dirname libbit)
+        destproj-name (default-to-dirname destproj)
+        libbit-src (find-file (str "src/" libbit-name ".clj") (:files libbit))
 
-        src-file-contents (let [old-libbit-ns (:name libbit)
-                                new-ns (str/join "." [(:name destproj) "libbit" (:name libbit)])]
+        src-file-contents (let [old-libbit-ns libbit-name
+                                new-ns (str/join "." [destproj-name "libbit" libbit-name])]
                             (change-ns
                                     old-libbit-ns
                                     new-ns
                                     (deref (:contents libbit-src))))]
-    [[:write {:to (file (:location destproj) "src" (:name destproj) "libbit" (str (:name libbit) ".clj"))
+    [[:write {:to       (file (:location destproj) "src" destproj-name "libbit" (str libbit-name ".clj"))
               :contents src-file-contents}]]))
 
 (defn change-ns [old-ns new-ns contents-of-clj]
@@ -27,3 +29,8 @@
   (let [matches? (s/fn [fwc :- t/FileWithContents]
                    (= name (.getPath (:location fwc))))]
     (first (filter matches? fileses))))
+
+(s/defn default-to-dirname :- s/Str [info :- {(s/optional-key :name) s/Str
+                                           :location java.io.File
+                                              s/Any s/Any}]
+  (or (:name info) (last (.split (.getAbsolutePath (:location info)) "/"))))
