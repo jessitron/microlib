@@ -35,7 +35,7 @@
     (last (.split full-path java.io.File/separator))))
 
 ;;
-(declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file mkdir-to)
+(declare as-clojure-file snakecase find-file src-file-location rewrite-ns change-ns-fn dest-src-file mkdir-to)
 (s/defn write-src-file :- [t/Instruction] [input]
   (let [src-file (find-file (src-file-location input) (:libbit-location input) (:libbit-files input))
         rewrite-ns (change-ns-fn input)
@@ -53,7 +53,7 @@
   (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
 
 (s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
-  (file destproj-location "src" destproj-name "libbit" (as-clojure-file libbit-name)))
+  (file destproj-location "src" (snakecase destproj-name) "libbit" (as-clojure-file libbit-name)))
 
 (s/defn write-test-file [input]
   [{:noop "write-test-file is not implemented"}])
@@ -81,10 +81,13 @@
       :else
       [{:mkdir {:for (file file-we-want-to-create)}}])))
 
+
+(s/defn snakecase :- t/JavaCompatibleName [kebab :- s/Str]
+  (.replace kebab "-" "_"))
+
 (defn as-clojure-file
-  "Pretty sure I should be dash-to-underscoring"
   [name]
-  (str (.replace name "-" "_") ".clj"))
+  (str (snakecase name) ".clj"))
 
 (s/defn change-ns-fn :- (s/=> s/Str s/Str) [{:keys [libbit-name destproj-name]}]
   (let

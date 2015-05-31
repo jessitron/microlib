@@ -11,7 +11,8 @@
                    :validate [#(.exists (io/file %)) "not found"]]
                   ["-d" "--destination YOUR-PROJECT" "Project that needs the libbit"
                    :validate [#(.exists (io/file %)) "not found"]]
-                  ["-n" "--libbit-name LIBBITNAME" "Microlibrary name"]])
+                  ["-n" "--libbit-name NAME" "Microlibrary name"]
+                  ["-p" "--destination-project NAME" "Destination project name"]])
 
 (def ERROR 1)
 
@@ -21,6 +22,7 @@
         _ (println "options:" parsed)
         libbit (get-in parsed [:options :libbit])
         libbit-name (get-in parsed [:options :libbit-name])
+        destproj-name (get-in parsed [:options :destination-project])
         destination (get-in parsed [:options :destination])]
     (cond
       (:errors parsed)
@@ -42,7 +44,8 @@
       (do (println "I want to put libbit" libbit "into" destination)
           (perform {:libbit-location libbit
                     :destproj-location destination
-                    :libbit-name libbit-name}))
+                    :libbit-name libbit-name
+                    :destproj-name destproj-name}))
       )))
 
 (declare gather-data-from-filesystem)
@@ -50,7 +53,8 @@
 ;; goal: start with options. Add minimum information.
 (s/defn perform [program-arguments :- {:libbit-location   s/Str
                                        :destproj-location s/Str
-                                       :libbit-name       (s/maybe s/Str)}]
+                                       :libbit-name       (s/maybe s/Str)
+                                       :destproj-name (s/maybe s/Str)}]
   (-> program-arguments
       gather-data-from-filesystem
       meat/install-libbit

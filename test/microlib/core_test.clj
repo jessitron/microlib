@@ -17,6 +17,7 @@
 (def test-template "test-input/project-without-libbit")
 (def test-libbit-name "pretend")                            ;; matches the .clj file in the pretend libbit
 (def test-destination "test-results")
+(def test-destination-name "dest-project")
 (def test-libbit "test-input/pretend-libbit")
 
 ;; assumption: directory & project name are the same for destination project
@@ -27,9 +28,9 @@
   (println (sh "ls" "."))
   (sh "rm" "-r" test-destination)
   (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict. Shell does.
-  (subject/-main "-l" test-libbit "-d" test-destination "-n" test-libbit-name)
-  (let [code-file (io/file (str test-destination "/src/" test-destination "/libbit/pretend.clj"))
-        test-file (io/file (str test-destination "/test/" test-destination "/libbit/pretend_test.clj"))]
-    (is (.exists code-file))
-    (is (.startsWith (slurp code-file) (str "(ns " test-destination ".libbit.pretend"))))
+  (subject/-main "-l" test-libbit "-d" test-destination "-n" test-libbit-name "-p" test-destination-name)
+  (let [code-file (io/file (str test-destination "/src/dest_project/libbit/pretend.clj"))
+        test-file (io/file (str test-destination "/test/dest_project/libbit/pretend_test.clj"))]
+    (and (is (.exists code-file))
+         (is (.startsWith (slurp code-file) (str "(ns " test-destination ".libbit.pretend")))))
   )

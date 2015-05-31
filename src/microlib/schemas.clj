@@ -17,9 +17,12 @@
                                  :location File
                                  :files    [File]})
 
-(s/defschema LibbitName (s/both s/Str (s/pred (partial not= "."))))
-(s/defschema ProjectName (s/both s/Str (s/pred (partial not= "."))))
+(s/defschema LibbitName (s/both s/Str (s/pred (partial not= ".") ". is not a libbit")))
+(s/defschema ProjectName (s/both s/Str (s/pred (partial not= ".") ". is not a name")))
 (s/def PathString (s/named s/Str "string containing a filesystem path"))
+
+(s/defschema JavaCompatibleName (s/both s/Str
+                                        (s/pred #(not (.contains % "-")) "no dashes allowed")))
 
 ;; act-in-filesystem
 (s/defschema WriteInstruction {:write {:to File :contents s/Str}})
