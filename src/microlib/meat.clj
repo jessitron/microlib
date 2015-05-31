@@ -31,7 +31,8 @@
   (assoc input :destproj-name (or destproj-name (last-path-component destproj-location))))
 
 (s/defn last-path-component [loc :- t/PathString]
-  (last (.split loc java.io.File/separator)))
+  (let [full-path (.getCanonicalPath (file loc))]
+    (last (.split full-path java.io.File/separator))))
 
 ;;
 (declare as-clojure-file find-file src-file-location rewrite-ns change-ns-fn dest-src-file)
