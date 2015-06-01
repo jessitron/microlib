@@ -93,7 +93,6 @@
                    (let [relative-path (.toString (.relativize
                                                     relative-uri
                                                     (.toURI (:location fwc))))]
-                     (println "comparing" file-path "to" relative-path)
                      (= file-path relative-path)))]
     (first (filter matches? fileses))))
 

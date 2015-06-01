@@ -8,12 +8,6 @@
 
 (clojure.test/use-fixtures :once schema.test/validate-schemas)
 
-(comment If I'm going to release something to the public
-         then I want to know it works for realz.
-         But as an MVP-test, where I am the test subject,
-         "How do I know it works? I ran it and it did what
-         I wanted" "is perfectly sufficient.")
-
 (def test-template "test-input/project-without-libbit")
 (def test-libbit-name "pretend")                            ;; matches the .clj file in the pretend libbit
 (def test-destination "test-results")

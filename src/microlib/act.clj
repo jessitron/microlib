@@ -15,7 +15,7 @@
       (do (println "Errors:" errors)
           (throw (ex-info "Errors occurred" {:errors errors :instructions instructions})))
       :else
-      (do (println "carrying out instructions:" instructions)
+      (do #_(println "carrying out instructions:" instructions)
           (doseq [one-instruction instructions]
             (condp matches? one-instruction
               t/WriteInstruction
