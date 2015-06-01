@@ -35,13 +35,20 @@
     (last (.split full-path java.io.File/separator))))
 
 ;;
-(declare as-clojure-file snakecase find-file src-file-location change-ns dest-src-file mkdir-to)
+(declare as-clojure-file snakecase find-file change-ns mkdir-to)
 
 (s/defn old-ns [{:keys [libbit-name]}]
   (str "libbit." libbit-name))
 
 (s/defn new-ns [{:keys [libbit-name destproj-name]}]
   (str/join "." [destproj-name "libbit" libbit-name]))
+
+
+(s/defn src-file-location [{:keys [libbit-name]}]
+  (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
+
+(s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
+  (file destproj-location "src" (snakecase destproj-name) "libbit" (as-clojure-file libbit-name)))
 
 (s/defn write-src-file :- [t/Instruction] [input]
   (let [src-file (find-file (src-file-location input) (:libbit-location input) (:libbit-files input))
@@ -58,14 +65,26 @@
               [{:write {:to       dest-file
                         :contents (change-ns (old-ns input) (new-ns input) (deref (:contents src-file)))}}]))))
 
-(s/defn src-file-location [{:keys [libbit-name]}]
-  (str/join java.io.File/separator ["src" "libbit" (as-clojure-file libbit-name)]))
 
-(s/defn dest-src-file [{:keys [destproj-location destproj-name libbit-name]}]
-  (file destproj-location "src" (snakecase destproj-name) "libbit" (as-clojure-file libbit-name)))
+;; convention: namespace-test is the test namespace
+(s/defn test-file-location [{:keys [libbit-name]}]
+  (str/join java.io.File/separator ["test" "libbit" (as-clojure-file (str libbit-name "-test"))]))
+
+
+(s/defn dest-test-file [{:keys [destproj-location destproj-name libbit-name]}]
+  (file destproj-location "test" (snakecase destproj-name) "libbit" (as-clojure-file (str libbit-name "-test"))))
 
 (s/defn write-test-file [input]
-  [{:noop "write-test-file is not implemented"}])
+  (let [test-file (find-file (test-file-location input) (:libbit-location input) (:libbit-files input))
+        dest-file-location (dest-test-file input)]
+    (cond
+      (nil? test-file)
+      [{:warning "No test file found"}]
+
+       :else
+      [{:mkdir {:for dest-file-location}}
+       {:write {:to       dest-file-location
+                :contents (.replaceAll (deref (:contents test-file)) (old-ns input) (new-ns input))}}])))
 
 
 (s/defn find-file :- (s/maybe t/FileWithContents) [file-path relative-to fileses]

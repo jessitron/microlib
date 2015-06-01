@@ -29,7 +29,9 @@
   (let [code-file (io/file (str test-destination "/src/dest_project/libbit/pretend.clj"))
         test-file (io/file (str test-destination "/test/dest_project/libbit/pretend_test.clj"))]
     (and (is (.exists code-file))
-         (is (.startsWith (slurp code-file) (str "(ns " test-destination-name ".libbit.pretend")))))
+         (is (.startsWith (slurp code-file) (str "(ns " test-destination-name ".libbit.pretend")))
+         (is (.exists test-file)))
+    )
   )
 
 

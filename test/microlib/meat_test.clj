@@ -10,6 +10,8 @@
 ;; parsing the projects to get at their names would be hard. So let's supply
 ;; it as an argument. I can type for now.
 
+(defn contains-item [thing list]
+  (seq (filter (partial = thing) list)))
 
 (deftest example-of-libbit-decisions
   (testing "Destination has one libbit already"
@@ -22,13 +24,13 @@
                                           :libbit-files      [{:location (file "/Users/fake/libbitname-dir/src/libbit/libbit_name.clj")
                                                                :contents (delay "(ns libbit.libbit-name) \"blahblah\" ")}
                                                               {:location (file "/Users/fake/libbitname-dir/test/libbit/libbit_name_test.clj")
-                                                               :contents (delay "(ns libbit.libbit-name-test (require [libbit.libbit-name :as subject)) \"blahblah\" ")}]})]
+                                                               :contents (delay "(ns libbit.libbit-name-test (require [libbit.libbit-name :as subject])) \"blahblah\" ")}]})]
       (is (= {:write {:to       (file "/Users/fake/destproj-dir/src/dest_proj/libbit/libbit_name.clj")
                       :contents "(ns dest-proj.libbit.libbit-name) \"blahblah\" "}}
              (first result)))
-      (is (= {:write {:to       (file "/Users/fake/destproj-dir/test/dest_proj/libbit/libbit_name_test.clj")
-                      :contents "(ns dest-proj.libbit.libbit-name-test (require [dest-proj.libbit.libbit-name :as subject])) \"blahblah\" "}}
-             (second result)))))
+      (is (contains-item {:write {:to       (file "/Users/fake/destproj-dir/test/dest_proj/libbit/libbit_name_test.clj")
+                                  :contents "(ns dest-proj.libbit.libbit-name-test (require [dest-proj.libbit.libbit-name :as subject])) \"blahblah\" "}}
+                         result))))
   (testing "Destination has no libbits yet; dir is created"
     ;; this could also be expressed as a property: every write and mkdir command
     ;; returned is either for a directory that exists, or one that has
@@ -40,12 +42,17 @@
                                           :destproj-file-seq [(file "Users/fake/destproj-dir/src/destproj/core.clj") ;; this one has all the dirs we need except libbit
                                                               (file "Users/fake/destproj-dir/src/destproj/")]
                                           :libbit-files      [{:location (file "/Users/fake/libbitname-dir/src/libbit/libbit_name.clj")
-                                                               :contents (delay "(ns libbit.libbit-name) \"blahblah\" ")}]})]
+                                                               :contents (delay "(ns libbit.libbit-name) \"blahblah\" ")}
+                                                              {:location (file "/Users/fake/libbitname-dir/test/libbit/libbit_name_test.clj")
+                                                               :contents (delay "(ns libbit.libbit-name-test (require [libbit.libbit-name :as subject])) \"blahblah\" ")}]})]
       (is (= {:mkdir {:for (file "/Users/fake/destproj-dir/src/destproj/libbit/libbit_name.clj")}}
              (first result)))
       (is (= {:write {:to       (file "/Users/fake/destproj-dir/src/destproj/libbit/libbit_name.clj")
                       :contents "(ns destproj.libbit.libbit-name) \"blahblah\" "}}
-             (second result))))))
+             (second result)))
+      (is (= {:mkdir {:for (file "/Users/fake/destproj-dir/test/destproj/libbit/libbit_name_test.clj")}}
+             (nth result 2)))
+      )))
 
 ;; hmm. Gonna hafta provide a way to read the files
 ;; and it's not gonna be a copy, it's gonna be a write
