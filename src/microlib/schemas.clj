@@ -24,7 +24,7 @@
 (s/defschema JavaCompatibleName (s/both s/Str
                                         (s/pred #(not (.contains % "-")) "no dashes allowed")))
 
-;; act-in-filesystem
+;; act
 (s/defschema WriteInstruction {:write {:to File :contents s/Str}})
 (s/defschema MkdirInstruction {:mkdir {:for File}})
 (s/defschema ErrorInstruction {:error s/Str})

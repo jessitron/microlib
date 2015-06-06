@@ -27,7 +27,6 @@
               t/NoOp
               nil))))))
 
-
 (s/defn ^:always-validate perform-write [instr :- t/WriteInstruction]
   (let [{destination :to, contents :contents} (:write instr)]
     (spit destination contents)))

@@ -6,15 +6,11 @@
 
 (clojure.test/use-fixtures :once schema.test/validate-schemas)
 
-;; new purpose: isolate side effects and see how this makes testing easier
-;; parsing the projects to get at their names would be hard. So let's supply
-;; it as an argument. I can type for now.
-
 (defn contains-item [thing list]
   (seq (filter (partial = thing) list)))
 
 (deftest example-of-libbit-decisions
-  (testing "Destination has one libbit already"
+  (testing "Destination has one libbit already; new one gets copied in"
     (let [result (subject/install-libbit {:libbit-name       "libbit-name"
                                           :destproj-name     "dest-proj"
                                           :libbit-location   "/Users/fake/libbitname-dir"
@@ -51,8 +47,4 @@
                       :contents "(ns destproj.libbit.libbit-name) \"blahblah\" "}}
              (second result)))
       (is (= {:mkdir {:for (file "/Users/fake/destproj-dir/test/destproj/libbit/libbit_name_test.clj")}}
-             (nth result 2)))
-      )))
-
-;; hmm. Gonna hafta provide a way to read the files
-;; and it's not gonna be a copy, it's gonna be a write
+             (nth result 2))))))

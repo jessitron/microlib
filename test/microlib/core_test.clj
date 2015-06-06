@@ -8,17 +8,16 @@
 
 (clojure.test/use-fixtures :once schema.test/validate-schemas)
 
+;; These refer to hand-made directories and files inside this project
 (def test-template "test-input/project-without-libbit")
 (def test-libbit-name "pretend")                            ;; matches the .clj file in the pretend libbit
 (def test-destination "test-results")
 (def test-destproj-name "dest-project")
 (def test-libbit "test-input/pretend-libbit")
 
-;; assumption: directory & project name are the same for destination project
-
 (deftest one-hardcoded-test
   (sh "rm" "-r" test-destination)
-  (sh "cp" "-r" test-template test-destination)     ;; terrible but this is an MVP-test, and io/copy doesn't do directories afaict. Shell does.
+  (sh "cp" "-r" test-template test-destination)
   (subject/-main "-l" test-libbit "-d" test-destination "-n" test-libbit-name "-p" test-destproj-name)
   (let [code-file (io/file (str test-destination "/src/dest_project/libbit/pretend.clj"))
         test-file (io/file (str test-destination "/test/dest_project/libbit/pretend_test.clj"))

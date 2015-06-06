@@ -50,7 +50,6 @@
 
 (declare gather-data-from-filesystem)
 
-;; goal: start with options. Add minimum information.
 (s/defn perform [program-arguments :- {:libbit-location   s/Str
                                        :destproj-location s/Str
                                        :libbit-name       (s/maybe s/Str)

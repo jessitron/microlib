@@ -9,19 +9,18 @@
 (s/defn ^:always-validate install-libbit [input-data :- {:libbit-location                t/PathString
                                                          :destproj-location              t/PathString
                                                          :libbit-files                   [t/FileWithContents]
-                                                         :destproj-file-seq [java.io.File]
+                                                         :destproj-file-seq              [java.io.File]
                                                          (s/optional-key :libbit-name)   (s/maybe t/LibbitName)
-                                                         (s/optional-key :destproj-name) t/ProjectName}]
+                                                         (s/optional-key :destproj-name) (s/maybe t/ProjectName)}]
   (let [full-input (-> input-data
                        populate-libbit-name
-                       populate-destproj-name
-                       )
+                       populate-destproj-name)
         instructions (concat (write-src-file full-input)
                              (write-test-file full-input))]
     instructions))
 
 ;; Default the name of the libbit and project
-;; to the name of the directory it's located in
+;; to the name of the directory each is located in
 (declare last-path-component)
 (s/defn ^:always-validate populate-libbit-name :- {:libbit-name t/LibbitName, s/Any s/Any}
   [{:keys [libbit-name libbit-location] :as input}]
@@ -34,7 +33,6 @@
   (let [full-path (.getCanonicalPath (file loc))]
     (last (.split full-path java.io.File/separator))))
 
-;;
 (declare as-clojure-file snakecase find-file change-ns mkdir-to)
 
 (s/defn old-ns [{:keys [libbit-name]}]
