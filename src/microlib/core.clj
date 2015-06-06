@@ -19,7 +19,6 @@
 (declare perform)
 (defn -main [& args]
   (let [parsed (cli/parse-opts args cli-options)
-        _ (println "options:" parsed)
         libbit (get-in parsed [:options :libbit])
         libbit-name (get-in parsed [:options :libbit-name])
         destproj-name (get-in parsed [:options :destination-project])
@@ -41,12 +40,10 @@
           ERROR)
 
       :else
-      (do (println "I want to put libbit" libbit "into" destination)
-          (perform {:libbit-location libbit
-                    :destproj-location destination
-                    :libbit-name libbit-name
-                    :destproj-name destproj-name}))
-      )))
+      (perform {:libbit-location   libbit
+                :destproj-location destination
+                :libbit-name       libbit-name
+                :destproj-name     destproj-name}))))
 
 (declare gather-data-from-filesystem)
 
